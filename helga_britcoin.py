@@ -37,16 +37,26 @@ blockchain = [create_genesis_block()]
 previous_block = blockchain[0]
 pending_transactions = []
 
-def proof_of_work(prev_hash, message):
 
+def work(prev_hash, message):
     hasher = hashlib.sha256()
     hasher.update(prev_hash + message)
     hash_attempt = hasher.hexdigest()
 
-    logger.debug('hash attempt: {}'.format(hash_attempt))
+    return hash_attempt
 
-    if hash_attempt[0] == '0':
-        return hash_attempt
+
+def proof_of_work(prev_hash, message):
+    """
+    r/AnAttemptWasMade
+    """
+
+    attempt = work(prev_hash, message)
+
+    logger.debug('hash attempt: {}'.format(attempt))
+
+    if attempt.startswith('00'):
+        return attempt
 
 def mine(nick, message):
     """
