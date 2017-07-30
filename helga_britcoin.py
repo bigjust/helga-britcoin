@@ -26,16 +26,26 @@ class BritcoinBlock(object):
                    str(self.previous_hash))
         return sha.hexdigest()
 
-def create_genesis_block():
-    # Manually construct a block with
-    # index zero and arbitrary previous hash
-    return BritcoinBlock(
-        0, date.datetime.now(), "Genesis Block", "0"
-    )
+class BritChain(list):
+
+    def __init__(self):
+        super(BritChain, self).__init__()
+
+        self.create_genesis_block()
+
+    def create_genesis_block(self):
+        # Manually construct a block with
+        # index zero and arbitrary previous hash
+
+        self.append(BritcoinBlock(
+            0, date.datetime.now(), "Genesis Block", "0"
+        ))
+
+    def latest_block(self):
+        return self[-1]
 
 # Create the blockchain and add the genesis block
-blockchain = [create_genesis_block()]
-previous_block = blockchain[0]
+blockchain = BritChain()
 pending_transactions = []
 
 
