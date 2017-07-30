@@ -1,7 +1,7 @@
 import mock
 import unittest
 
-from helga_britcoin import BritcoinBlock, proof_of_work, mine, blockchain
+from helga_britcoin import BritBlock, proof_of_work, mine, blockchain
 
 
 class PluginTest(unittest.TestCase):

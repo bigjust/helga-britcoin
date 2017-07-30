@@ -9,7 +9,7 @@ from helga.plugins import preprocessor
 logger = log.getLogger(__name__)
 
 
-class BritcoinBlock(object):
+class BritBlock(object):
 
     def __init__(self, index, timestamp, data, previous_hash):
         self.index = index
@@ -37,7 +37,7 @@ class BritChain(list):
         # Manually construct a block with
         # index zero and arbitrary previous hash
 
-        self.append(BritcoinBlock(
+        self.append(BritBlock(
             0, date.datetime.now(), "Genesis Block", "0"
         ))
 
@@ -105,7 +105,7 @@ def mine(nick, message):
 
         # Now create the
         # new block!
-        mined_block = BritcoinBlock(
+        mined_block = BritBlock(
             new_block_index,
             new_block_timestamp,
             new_block_data,
