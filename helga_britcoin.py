@@ -1,5 +1,6 @@
 import datetime as date
 import hashlib
+import json
 
 from helga import settings, log
 from helga.plugins import preprocessor
@@ -90,7 +91,7 @@ def mine(nick, message):
         last_block_hash = last_block.hash
 
         # Empty transaction list
-        this_nodes_transactions[:] = []
+        pending_transactions[:] = []
 
         # Now create the
         # new block!

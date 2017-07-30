@@ -1,7 +1,7 @@
 import mock
 import unittest
 
-from helga_britcoin import BritcoinBlock, proof_of_work
+from helga_britcoin import BritcoinBlock, proof_of_work, mine, blockchain
 
 
 class PluginTest(unittest.TestCase):
@@ -30,3 +30,30 @@ class PluginTest(unittest.TestCase):
         attempt = proof_of_work('00aaaa', 'test message')
 
         self.assertIsNone(attempt)
+
+    @mock.patch('helga_britcoin.work')
+    def test_mine_successful(self, mock_work):
+        """
+        If mining is successful, test that the miner gets credit.
+        """
+
+        mock_work.return_value = '00'
+
+        output = mine('bigjust', 'test message')
+        last_block = blockchain[-1]
+
+        self.assertIsNotNone(output)
+        self.assertEquals(len(last_block.data['transactions']), 1)
+        self.assertEquals(last_block.data['transactions'][0]['to'], 'bigjust')
+
+
+    @mock.patch('helga_britcoin.work')
+    def test_mine_unsuccessful(self, mock_work):
+        """
+        if mining is unsuccessful, nothing happens.
+        """
+
+        mock_work.return_value = '01'
+
+        output = mine('bigjust', 'test message')
+        self.assertIsNone(output)
