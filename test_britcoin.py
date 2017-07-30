@@ -38,14 +38,11 @@ class PluginTest(unittest.TestCase):
         """
 
         mock_work.return_value = '00'
-
         output = self.blockchain.mine('bigjust', 'test message')
         last_block = self.blockchain.latest_block()
 
-        self.assertIsNotNone(output)
         self.assertEquals(len(last_block.data['transactions']), 1)
         self.assertEquals(last_block.data['transactions'][0]['to'], 'bigjust')
-
 
     @mock.patch('helga_britcoin.work')
     def test_mine_unsuccessful(self, mock_work):

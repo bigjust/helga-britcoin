@@ -4,6 +4,7 @@ import json
 import smokesignal
 
 from helga import settings, log
+from helga.db import db
 from helga.plugins import preprocessor
 
 
@@ -37,15 +38,24 @@ class BritBlock(object):
 class BritChain(list):
 
     def __init__(self):
+        """
+        Load blocks from mongodb. If none are found, create a genesis
+        block.
+        """
+
         super(BritChain, self).__init__()
 
         self.pending_transactions = []
-
         self.create_genesis_block()
 
     def __append__(self, block):
+        """
+        When blocks are added to the chain, add the block to mongodb.
+        """
 
         super(BritChain, self).__append__(block)
+
+        db.britcoin.insert(block.__dict__)
 
     def create_genesis_block(self):
         # Manually construct a block with
@@ -56,6 +66,10 @@ class BritChain(list):
         ))
 
     def latest_block(self):
+        """
+        Return the most recent block.
+        """
+
         return self[-1]
 
     def mine(self, nick, message):
@@ -89,7 +103,7 @@ class BritChain(list):
             new_block_timestamp = this_timestamp = date.datetime.now()
             last_block_hash = last_block.hash
 
-            # Empty transaction list
+            # Empty pending transaction list
             self.pending_transactions[:] = []
 
             # Now create the new block!
@@ -101,15 +115,6 @@ class BritChain(list):
             )
 
             self.append(mined_block)
-
-            # Let the client know we mined a block
-
-            return json.dumps({
-                "index": new_block_index,
-                "timestamp": str(new_block_timestamp),
-                "data": new_block_data,
-                "hash": last_block_hash
-            }) + "\n"
 
 # Create the blockchain and add the genesis block
 blockchain = BritChain()
