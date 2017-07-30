@@ -1,13 +1,13 @@
 import mock
 import unittest
 
-from helga_britcoin import BritBlock, proof_of_work, mine, blockchain
+from helga_britcoin import BritBlock, BritChain, proof_of_work
 
 
 class PluginTest(unittest.TestCase):
 
     def setUp(self):
-        pass
+        self.blockchain = BritChain()
 
     @mock.patch('helga_britcoin.work')
     def test_proofer_successful(self, mock_work):
@@ -39,8 +39,8 @@ class PluginTest(unittest.TestCase):
 
         mock_work.return_value = '00'
 
-        output = mine('bigjust', 'test message')
-        last_block = blockchain[-1]
+        output = self.blockchain.mine('bigjust', 'test message')
+        last_block = self.blockchain.latest_block()
 
         self.assertIsNotNone(output)
         self.assertEquals(len(last_block.data['transactions']), 1)
@@ -54,6 +54,6 @@ class PluginTest(unittest.TestCase):
         """
 
         mock_work.return_value = '01'
+        output = self.blockchain.mine('bigjust', 'test message')
 
-        output = mine('bigjust', 'test message')
         self.assertIsNone(output)
