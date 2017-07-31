@@ -12,6 +12,7 @@ from helga.plugins import preprocessor
 logger = log.getLogger(__name__)
 blockchain = None
 DIFFICULTY = getattr(settings, 'BRITCOIN_DIFFICULTY', 2)
+INITIAL_DATA = getattr(settings, 'BRITCOIN_INITIAL_DATA', 'Genesis Block')
 
 
 class BritBlock(object):
@@ -85,19 +86,7 @@ class BritChain(list):
             BritBlock(
                 0,
                 date.datetime.now(),
-                """
-                Happy Birthday Brit!
-
-                Aineko (mimicing Brit):
-                Or do we go to The Mercury and get
-                decent. But at a certain point you need tech skill
-                training on CRTs.
-
-                Helga constructed a haiku about Brit:
-                britt butler, booze-strong!
-                Brit needs poll enhancement help
-                i'm cuter than brit
-                """,
+                INITIAL_DATA,
                 "0"
             ),
             persist=True
