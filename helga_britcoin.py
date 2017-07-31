@@ -10,6 +10,8 @@ from helga.plugins import preprocessor
 
 
 logger = log.getLogger(__name__)
+blockchain = None
+DIFFICULTY = getattr(settings, 'BRITCOIN_DIFFICULTY', 2)
 
 
 class BritBlock(object):
@@ -137,8 +139,6 @@ class BritChain(list):
 
             self.append(mined_block, persist=True)
 
-blockchain = None
-
 def work(prev_hash, message):
     hasher = hashlib.sha256()
     hasher.update(prev_hash + message)
@@ -153,7 +153,7 @@ def proof_of_work(prev_hash, message):
 
     attempt = work(prev_hash, message)
 
-    if attempt.startswith('00'):
+    if attempt.startswith('0' * DIFFICULTY):
         return attempt
 
 @preprocessor
