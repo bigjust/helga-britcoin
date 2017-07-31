@@ -11,7 +11,7 @@ from helga.plugins import preprocessor, Plugin
 
 logger = log.getLogger(__name__)
 blockchain = None
-DIFFICULTY = getattr(settings, 'BRITCOIN_DIFFICULTY', 2)
+DIFFICULTY = int(getattr(settings, 'BRITCOIN_DIFFICULTY', 2))
 INITIAL_DATA = getattr(settings, 'BRITCOIN_INITIAL_DATA', 'Genesis Block')
 
 
