@@ -1,6 +1,7 @@
 import datetime as date
 import hashlib
 import json
+import pymongo
 import smokesignal
 
 from helga import settings, log
@@ -46,24 +47,44 @@ class BritChain(list):
         super(BritChain, self).__init__()
 
         self.pending_transactions = []
-        self.create_genesis_block()
 
-    def __append__(self, block):
+        for block in db.britcoin.find().sort([('index', pymongo.ASCENDING)]):
+            self.append(
+                BritBlock(
+                    block['index'],
+                    block['timestamp'],
+                    block['data'],
+                    block['previous_hash']
+                )
+            )
+
+        if not len(self):
+            self.create_genesis_block()
+
+    def append(self, block, persist=False):
         """
         When blocks are added to the chain, add the block to mongodb.
         """
 
-        super(BritChain, self).__append__(block)
+        super(BritChain, self).append(block)
 
-        db.britcoin.insert(block.__dict__)
+        if persist:
+            logger.debug('adding block: {}'.format(
+                block.__dict__
+            ))
+
+            db.britcoin.insert(block.__dict__)
 
     def create_genesis_block(self):
         # Manually construct a block with
         # index zero and arbitrary previous hash
 
-        self.append(BritBlock(
-            0, date.datetime.now(), "Genesis Block", "0"
-        ))
+        self.append(
+            BritBlock(
+                0, date.datetime.now(), "Genesis Block", "0"
+            ),
+            persist=True
+        )
 
     def latest_block(self):
         """
@@ -114,10 +135,9 @@ class BritChain(list):
                 last_block_hash
             )
 
-            self.append(mined_block)
+            self.append(mined_block, persist=True)
 
-# Create the blockchain and add the genesis block
-blockchain = BritChain()
+blockchain = None
 
 def work(prev_hash, message):
     hasher = hashlib.sha256()
@@ -141,6 +161,8 @@ def britcoin(client, channel, nick, message):
     blockchain.mine(nick, message)
     return channel, nick, message
 
+
 @smokesignal.on('join')
-def join_channel(client, channel):
-    pass
+def init_chain(client, channel):
+
+    blockchain = BritChain()

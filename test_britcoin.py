@@ -6,7 +6,9 @@ from helga_britcoin import BritBlock, BritChain, proof_of_work
 
 class PluginTest(unittest.TestCase):
 
-    def setUp(self):
+    @mock.patch('helga_britcoin.db')
+    def setUp(self, db):
+        db.britcoin.find.sort.return_value = []
         self.blockchain = BritChain()
 
     @mock.patch('helga_britcoin.work')
@@ -31,8 +33,9 @@ class PluginTest(unittest.TestCase):
 
         self.assertIsNone(attempt)
 
+    @mock.patch('helga_britcoin.db')
     @mock.patch('helga_britcoin.work')
-    def test_mine_successful(self, mock_work):
+    def test_mine_successful(self, mock_work, mock_db):
         """
         If mining is successful, test that the miner gets credit.
         """
@@ -41,6 +44,7 @@ class PluginTest(unittest.TestCase):
         output = self.blockchain.mine('bigjust', 'test message')
         last_block = self.blockchain.latest_block()
 
+        mock_db.britcoin.insert.assert_called_with(last_block.__dict__)
         self.assertEquals(len(last_block.data['transactions']), 1)
         self.assertEquals(last_block.data['transactions'][0]['to'], 'bigjust')
 
