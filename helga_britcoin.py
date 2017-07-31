@@ -83,7 +83,22 @@ class BritChain(list):
 
         self.append(
             BritBlock(
-                0, date.datetime.now(), "Genesis Block", "0"
+                0,
+                date.datetime.now(),
+                """
+                Happy Birthday Brit!
+
+                Aineko (mimicing Brit):
+                Or do we go to The Mercury and get
+                decent. But at a certain point you need tech skill
+                training on CRTs.
+
+                Helga constructed a haiku about Brit:
+                britt butler, booze-strong!
+                Brit needs poll enhancement help
+                i'm cuter than brit
+                """,
+                "0"
             ),
             persist=True
         )
