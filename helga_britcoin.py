@@ -6,7 +6,7 @@ import smokesignal
 
 from helga import settings, log
 from helga.db import db
-from helga.plugins import preprocessor
+from helga.plugins import preprocessor, Plugin
 
 
 logger = log.getLogger(__name__)
@@ -160,13 +160,12 @@ def proof_of_work(prev_hash, message):
     if attempt.startswith('0' * DIFFICULTY):
         return attempt
 
-@preprocessor
-def britcoin(client, channel, nick, message):
-    blockchain.mine(nick, message)
-    return channel, nick, message
+class BritCoinPlugin(Plugin):
 
+    def __init__(self, *args, **kwargs):
+        super(BritCoinPlugin, self).__init__(*args, **kwargs)
+        self.blockchain = BritChain()
 
-@smokesignal.on('join')
-def init_chain(client, channel):
-
-    blockchain = BritChain()
+    def preprocess(self, client, channel, nick, message):
+        self.blockchain.mine(nick, message)
+        return channel, nick, message

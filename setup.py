@@ -24,7 +24,7 @@ setup(
     zip_safe=True,
     entry_points = dict(
         helga_plugins = [
-            'britcoin = helga_britcoin:britcoin',
+            'britcoin = helga_britcoin:BritCoinPlugin',
         ],
     ),
 )
