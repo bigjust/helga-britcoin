@@ -1,7 +1,7 @@
 import mock
 import unittest
 
-from helga_britcoin import BritBlock, BritChain, proof_of_work
+from helga_britcoin import BritBlock, BritChain, proof_of_conversation
 
 
 class PluginTest(unittest.TestCase):
@@ -18,7 +18,7 @@ class PluginTest(unittest.TestCase):
         """
 
         mock_work.return_value = '00abcd'
-        attempt = proof_of_work('00aaaa', 'test message')
+        attempt = proof_of_conversation('00aaaa', 'test message')
 
         self.assertIsNotNone(attempt)
 
@@ -29,7 +29,7 @@ class PluginTest(unittest.TestCase):
         """
 
         mock_work.return_value = '1234abcd'
-        attempt = proof_of_work('00aaaa', 'test message')
+        attempt = proof_of_conversation('00aaaa', 'test message')
 
         self.assertIsNone(attempt)
 

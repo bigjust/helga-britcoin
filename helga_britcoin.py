@@ -1,18 +1,39 @@
 import datetime as date
 import hashlib
-import json
 import pymongo
-import smokesignal
 
 from helga import settings, log
 from helga.db import db
-from helga.plugins import preprocessor, Plugin
+from helga.plugins import Command
 
 
 logger = log.getLogger(__name__)
 blockchain = None
 DIFFICULTY = int(getattr(settings, 'BRITCOIN_DIFFICULTY', 2))
 INITIAL_DATA = getattr(settings, 'BRITCOIN_INITIAL_DATA', 'Genesis Block')
+
+
+def work(prev_hash, message):
+    """
+    hash the message with the previous hash to produce the hash
+    attempt.
+    """
+
+    hasher = hashlib.sha256()
+    hasher.update(prev_hash + message)
+    hash_attempt = hasher.hexdigest()
+
+    return hash_attempt
+
+def proof_of_conversation(prev_hash, message):
+    """
+    r/AnAttemptWasMade
+    """
+
+    attempt = work(prev_hash, message)
+
+    if attempt.startswith('0' * DIFFICULTY):
+        return attempt
 
 
 class BritBlock(object):
@@ -110,7 +131,7 @@ class BritChain(list):
         # Get the last block
         last_block = self.latest_block()
 
-        proof = proof_of_work(last_block.hash_block(), message)
+        proof = proof_of_conversation(last_block.hash_block(), message)
 
         if proof:
 
@@ -143,29 +164,24 @@ class BritChain(list):
 
             self.append(mined_block, persist=True)
 
-def work(prev_hash, message):
-    hasher = hashlib.sha256()
-    hasher.update(prev_hash + message)
-    hash_attempt = hasher.hexdigest()
 
-    return hash_attempt
+class BritCoinPlugin(Command):
 
-def proof_of_work(prev_hash, message):
-    """
-    r/AnAttemptWasMade
-    """
-
-    attempt = work(prev_hash, message)
-
-    if attempt.startswith('0' * DIFFICULTY):
-        return attempt
-
-class BritCoinPlugin(Plugin):
+    command = 'britcoin'
 
     def __init__(self, *args, **kwargs):
+
         super(BritCoinPlugin, self).__init__(*args, **kwargs)
+
         self.blockchain = BritChain()
 
     def preprocess(self, client, channel, nick, message):
+
         self.blockchain.mine(nick, message)
+
         return channel, nick, message
+
+    def run(self, client, channel, nick, message, cmd, args):
+
+        if args and args[0] == 'stats':
+            return u'foo'

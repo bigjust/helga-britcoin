@@ -3,7 +3,8 @@ helga-britcoin
 
 allow users to generate and spend a cryptocurrency in chat
 
-messages will be used as work to potentially generating coins
+This uses what we're called "Proof of Conversation", where irc
+messages are used to hash the britcoin blocks
 
 python POC:
 https://medium.com/crypto-currently/lets-make-the-tiniest-blockchain-bigger-ac360a328f4d
