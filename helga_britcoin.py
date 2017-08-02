@@ -106,7 +106,7 @@ class BritChain(list):
         self.append(
             BritBlock(
                 0,
-                date.datetime.now(),
+                date.datetime.now().replace(microsecond=0),
                 INITIAL_DATA,
                 "0"
             ),
@@ -148,8 +148,7 @@ class BritChain(list):
             }
 
             new_block_index = last_block.index + 1
-            new_block_timestamp = this_timestamp = date.datetime.now()
-            last_block_hash = last_block.hash
+            new_block_timestamp = date.datetime.now().replace(microsecond=0)
 
             # Empty pending transaction list
             self.pending_transactions[:] = []
@@ -159,7 +158,7 @@ class BritChain(list):
                 new_block_index,
                 new_block_timestamp,
                 new_block_data,
-                last_block_hash
+                last_block.hash
             )
 
             self.append(mined_block, persist=True)
