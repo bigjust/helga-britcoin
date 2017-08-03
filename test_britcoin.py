@@ -59,22 +59,37 @@ class PluginTest(unittest.TestCase):
 
         self.assertIsNone(output)
 
-    def test_britcoin_count(self):
+    def test_britcoin_balances(self):
 
         self.blockchain.append(
             BritBlock(
                 0, 0,
-                {'transactions': [
-                    {
-                        'from': 'network',
-                        'to': 'brit',
-                        'amount': 1
-                    }
+                {'transactions': [{
+                    'from': 'network',
+                    'to': 'brit',
+                    'amount': 1
+                },{
+                    'from': 'network',
+                    'to': 'bigjust',
+                    'amount': 2
+                }
                 ]},
+                "0"
+            ))
+
+        self.blockchain.append(
+            BritBlock(
+                0, 0,
+                {'transactions': [{
+                    'from': 'bigjust',
+                    'to': 'brit',
+                    'amount': 1
+                }]},
                 "0"
             ))
 
         balances = self.blockchain.calculate_balances()
 
-        self.assertEqual(balances['brit'], 1)
-        self.assertEqual(balances['network'], -1)
+        self.assertEqual(balances['brit'], 2)
+        self.assertEqual(balances['bigjust'], 1)
+        self.assertEqual(balances['network'], -3)
