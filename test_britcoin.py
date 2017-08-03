@@ -58,3 +58,23 @@ class PluginTest(unittest.TestCase):
         output = self.blockchain.mine('bigjust', 'test message')
 
         self.assertIsNone(output)
+
+    def test_britcoin_count(self):
+
+        self.blockchain.append(
+            BritBlock(
+                0, 0,
+                {'transactions': [
+                    {
+                        'from': 'network',
+                        'to': 'brit',
+                        'amount': 1
+                    }
+                ]},
+                "0"
+            ))
+
+        balances = self.blockchain.calculate_balances()
+
+        self.assertEqual(balances['brit'], 1)
+        self.assertEqual(balances['network'], -1)

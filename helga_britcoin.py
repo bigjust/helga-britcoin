@@ -2,6 +2,8 @@ import datetime as date
 import hashlib
 import pymongo
 
+from collections import defaultdict
+
 from helga import settings, log
 from helga.db import db
 from helga.plugins import Command
@@ -10,7 +12,7 @@ from helga.plugins import Command
 logger = log.getLogger(__name__)
 blockchain = None
 DIFFICULTY = int(getattr(settings, 'BRITCOIN_DIFFICULTY', 2))
-INITIAL_DATA = getattr(settings, 'BRITCOIN_INITIAL_DATA', 'Genesis Block')
+INITIAL_DATA = getattr(settings, 'BRITCOIN_INITIAL_DATA', {'data': 'Genesis Block'})
 
 
 def work(prev_hash, message):
@@ -162,6 +164,19 @@ class BritChain(list):
             )
 
             self.append(mined_block, persist=True)
+
+    def calculate_balances(self):
+
+        balances = defaultdict(int)
+
+        for block in self:
+            for transaction in block.data.get('transactions', []):
+
+                balances[transaction['to']] += transaction['amount']
+                balances[transaction['from']] -= transaction['amount']
+
+        return balances
+
 
 
 class BritCoinPlugin(Command):
