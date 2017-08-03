@@ -8,7 +8,7 @@ setup(
     description=('HALP'),
     long_description=open('README.rst').read(),
     classifiers=[
-        'Development Status :: 1 - Planning',
+        'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
