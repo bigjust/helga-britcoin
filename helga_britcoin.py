@@ -136,7 +136,7 @@ class BritChain(list):
         """
         hashes the current message with the pending transactions.
 
-        If the hash begins with 1 zero, it is considered mined and a
+        If the hash begins with `DIFFICULTY` zero(s), it is considered mined and a
         britcoin is sent to the miner.
         """
 
