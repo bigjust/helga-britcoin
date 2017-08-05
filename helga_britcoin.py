@@ -75,14 +75,25 @@ class BritChain(list):
         self.pending_transactions = []
 
         for block in db.britcoin.find().sort([('index', pymongo.ASCENDING)]):
-            self.append(
-                BritBlock(
-                    block['index'],
-                    block['timestamp'],
-                    block['data'],
-                    block['previous_hash']
-                )
+
+            potential_block = BritBlock(
+                block['index'],
+                block['timestamp'],
+                block['data'],
+                block['previous_hash']
             )
+
+            if block['index'] > 0:
+                logger.debug('verifying block index = {}'.format(block['index']))
+
+                if self[block['index'] - 1].hash == block['previous_hash']:
+                    self.append(potential_block)
+                else:
+                    logger.debug('invalid block found: {}'.format(
+                        potential_block
+                    ))
+            else:
+                self.append(potential_block)
 
         if not len(self):
             self.create_genesis_block()
@@ -95,11 +106,10 @@ class BritChain(list):
         super(BritChain, self).append(block)
 
         if persist:
-            logger.debug('adding block: {}'.format(
-                block.__dict__
-            ))
-
+            logger.debug('adding block: {}'.format(block.__dict__))
             db.britcoin.insert(block.__dict__)
+        else:
+            logger.debug('loaded hash: {}'.format(block.hash))
 
     def create_genesis_block(self):
         # Manually construct a block with

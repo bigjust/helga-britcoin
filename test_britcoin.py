@@ -127,10 +127,39 @@ class PluginTest(unittest.TestCase):
         self.assertEqual(len(blockchain), 1)
         self.assertEqual(blockchain[0].data, 'from db')
 
-
-    def test_load_blockchain(self):
+    @mock.patch('helga_britcoin.db')
+    def test_load_blockchain(self, mock_db):
         """
-        tests loading and verifying blockchain from mocked data store.
+        Tests loading and verifying blockchain from mocked data
+        store. The third block will fail verification, leaving two
+        verified blocks in the chain.
         """
 
-        self.assertTrue(False)
+        genesis_block = {
+            'index': 0,
+            'timestamp': 'now',
+            'data': 'from db',
+            'previous_hash': '0',
+        }
+
+        second_block = {
+            'index': 1,
+            'timestamp': 'now',
+            'data': 'another from db',
+            'previous_hash': 'cb8c80e8f7311d050c078021c38382bfc3c3a6ad9fb2255cbe619de54703df8e',
+        }
+
+        third_block = {
+            'index': 2,
+            'timestamp': 'now',
+            'data': 'tampered block',
+            'previous_hash': 'bleh',
+        }
+
+        db = mock_db.britcoin.find.return_value
+        db.sort.return_value = [genesis_block, second_block, third_block]
+
+        blockchain = BritChain()
+
+        self.assertEqual(len(blockchain), 2)
+        self.assertEqual(blockchain[1].data, 'another from db')
