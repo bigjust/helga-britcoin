@@ -7,8 +7,10 @@ from helga_britcoin import BritBlock, BritChain, proof_of_conversation
 class PluginTest(unittest.TestCase):
 
     @mock.patch('helga_britcoin.db')
-    def setUp(self, db):
-        db.britcoin.find.sort.return_value = []
+    def setUp(self, mock_db):
+        db = mock_db.britcoin.find.return_value
+        db.sort.return_value = []
+
         self.blockchain = BritChain()
 
     @mock.patch('helga_britcoin.work')
@@ -93,3 +95,42 @@ class PluginTest(unittest.TestCase):
         self.assertEqual(balances['brit'], 2)
         self.assertEqual(balances['bigjust'], 1)
         self.assertEqual(balances['network'], -3)
+
+
+    def test_genesis_block_creation(self):
+        """
+        Test that the genesis block gets created on an empty
+        blockchain.
+        """
+
+        self.assertEqual(len(self.blockchain), 1)
+
+    @mock.patch('helga_britcoin.db')
+    def test_genesis_block_defer(self, mock_db):
+        """
+        Test that the genesis block doesn't get created if a
+        blockchain is being retrieved from storage.
+        """
+
+        genesis_block = {
+            'index': 0,
+            'timestamp': 'now',
+            'data': 'from db',
+            'previous_hash': '0',
+        }
+
+        db = mock_db.britcoin.find.return_value
+        db.sort.return_value = [genesis_block]
+
+        blockchain = BritChain()
+
+        self.assertEqual(len(blockchain), 1)
+        self.assertEqual(blockchain[0].data, 'from db')
+
+
+    def test_load_blockchain(self):
+        """
+        tests loading and verifying blockchain from mocked data store.
+        """
+
+        self.assertTrue(False)
