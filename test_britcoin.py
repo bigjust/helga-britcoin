@@ -163,3 +163,32 @@ class PluginTest(unittest.TestCase):
 
         self.assertEqual(len(blockchain), 2)
         self.assertEqual(blockchain[1].data, 'another from db')
+
+
+    def test_order_in_hash(self):
+        """
+        Make sure that arbitrary ordering in dictionary elements results in the same hash.
+        """
+
+        block1_data = {
+            'proof-of-work': 'work_did',
+            'transactions': [{
+                'to': 'bigjust',
+                'from': 'brit',
+                'amount': 9000,
+            }],
+        }
+
+        block2_data = {
+            'transactions': [{
+                'from': 'brit',
+                'amount': 9000,
+                'to': 'bigjust',
+            }],
+            'proof-of-work': 'work_did',
+        }
+
+        block1 = BritBlock(0, 'nowish', block1_data, 'abcd')
+        block2 = BritBlock(0, 'nowish', block2_data, 'abcd')
+
+        self.assertEqual(block1.hash, block2.hash)

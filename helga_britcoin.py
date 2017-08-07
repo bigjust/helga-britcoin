@@ -2,7 +2,7 @@ import datetime as date
 import hashlib
 import pymongo
 
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from helga import settings, log
 from helga.db import db
@@ -13,6 +13,9 @@ logger = log.getLogger(__name__)
 blockchain = None
 DIFFICULTY = int(getattr(settings, 'BRITCOIN_DIFFICULTY', 2))
 INITIAL_DATA = getattr(settings, 'BRITCOIN_INITIAL_DATA', {'data': 'Genesis Block'})
+DEBUG = getattr(settings, 'HELGA_DEBUG', False)
+CMD_PREFIX = getattr(settings, 'COMMAND_PREFIX_CHAR', '!')
+
 
 
 def work(prev_hash, message):
@@ -52,12 +55,19 @@ class BritBlock(object):
 
         sha = hashlib.sha256()
 
-        sha.update(
-            str(self.index) +
-            str(self.timestamp) +
-            str(self.data) +
+        if isinstance(self.data, dict):
+            data = OrderedDict(sorted(self.data.items(), key=lambda t: t[0]))
+        else:
+            data = self.data
+
+        block_to_hash = str(self.index) +\
+            str(self.timestamp) +\
+            str(data) +\
             str(self.previous_hash)
-        )
+
+        logger.debug('hashing: {}'.format(block_to_hash))
+
+        sha.update(block_to_hash)
 
         return sha.hexdigest()
 
@@ -90,7 +100,7 @@ class BritChain(list):
                     self.append(potential_block)
                 else:
                     logger.debug('invalid block found: {}'.format(
-                        potential_block
+                        potential_block.__dict__
                     ))
             else:
                 self.append(potential_block)
@@ -118,7 +128,7 @@ class BritChain(list):
         self.append(
             BritBlock(
                 0,
-                date.datetime.now().replace(microsecond=0),
+                str(date.datetime.now().replace(microsecond=0)),
                 INITIAL_DATA,
                 "0"
             ),
@@ -149,18 +159,18 @@ class BritChain(list):
 
             # reward the miner
             self.pending_transactions.append(
-                { "from": "network", "to": nick, "amount": 1 }
+                { u'from': u'network', u'to': nick, u'amount': 1 }
             )
 
             # Now we can gather the data needed
             # to create the new block
             new_block_data = {
-                "proof-of-work": proof,
-                "transactions": list(self.pending_transactions)
+                u'proof-of-work': unicode(proof),
+                u'transactions': list(self.pending_transactions)
             }
 
             new_block_index = last_block.index + 1
-            new_block_timestamp = date.datetime.now().replace(microsecond=0)
+            new_block_timestamp = str(date.datetime.now().replace(microsecond=0))
 
             # Empty pending transaction list
             self.pending_transactions[:] = []
