@@ -13,10 +13,10 @@ from helga.plugins import Command
 logger = log.getLogger(__name__)
 blockchain = None
 DIFFICULTY = int(getattr(settings, 'BRITCOIN_DIFFICULTY', 2))
+IGNORED = getattr(settings, 'IGNORED', [])
 INITIAL_DATA = getattr(settings, 'BRITCOIN_INITIAL_DATA', {'data': 'Genesis Block'})
 DEBUG = getattr(settings, 'HELGA_DEBUG', False)
 CMD_PREFIX = getattr(settings, 'COMMAND_PREFIX_CHAR', '!')
-
 
 
 def work(prev_hash, message):
@@ -65,8 +65,6 @@ class BritBlock(object):
             str(self.timestamp) +\
             str(data) +\
             str(self.previous_hash)
-
-        logger.debug('hashing: {}'.format(block_to_hash))
 
         sha.update(block_to_hash)
 
@@ -212,7 +210,10 @@ class BritCoinPlugin(Command):
 
     def preprocess(self, client, channel, nick, message):
 
-        self.blockchain.mine(nick, message)
+        if nick not in IGNORED and not message.startswith(CMD_PREFIX):
+            self.blockchain.mine(nick, message)
+        else:
+            logger.debug('ignoring for mining purposes')
 
         return channel, nick, message
 
