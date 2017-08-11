@@ -1,5 +1,6 @@
 import datetime as date
 import hashlib
+import humanize
 import pymongo
 
 from collections import defaultdict, OrderedDict
@@ -216,6 +217,50 @@ class BritCoinPlugin(Command):
         return channel, nick, message
 
     def run(self, client, channel, nick, message, cmd, args):
+        """
+        Subcommands:
 
-        if args and args[0] == 'stats':
-            return u'foo'
+        <bigjust> !britcoin stats
+        <aineko> 23 britcoins, 3 hrs 57 minutes / 57 msgs per block
+
+        <bigjust> !britcoin send brit 5
+        <aineko> added bigjust -> brit (5 britcoins) to pending transactions
+
+        <bigjust> !britcoin balances
+        <aineko> bigjust: 2
+        <aineko> brit: 5
+        """
+
+        if args:
+            if args[0] == 'stats':
+                chain_balances = self.blockchain.calculate_balances()
+                coins_mined = abs(chain_balances['network'])
+
+                def timestamp2datetime(timestamp):
+                    return date.datetime.strptime(
+                        timestamp,
+                        '%Y-%m-%d %H:%M:%S'
+                    )
+
+                blockchain_start = timestamp2datetime(self.blockchain[0].timestamp)
+                blockchain_end = timestamp2datetime(self.blockchain[-1].timestamp)
+                total_duration = blockchain_start - blockchain_end
+
+                return u'{} britcoins | {} per britcoin'.format(
+                    coins_mined,
+                    humanize.naturaldelta(total_duration.total_seconds() / coins_mined)
+                )
+
+            if args[0] == 'send':
+
+                return u'bug bigjust to implement this.'
+
+                if len(args) != 3:
+                    return u'usage: send <nick> <number of britcoins>'
+
+            if args[0] == 'balances':
+                for chain_nick, balance in self.blockchain.calculate_balances().iteritems():
+                    if chain_nick == 'network':
+                        continue
+
+                    client.msg(channel, '{}: {}'.format(chain_nick, balance))

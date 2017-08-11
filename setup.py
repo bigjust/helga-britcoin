@@ -19,6 +19,9 @@ setup(
     author_email='bigjust@lambdaphil.es',
     license='LICENSE',
     packages=find_packages(),
+    install_requires = (
+        'humanize',
+    ),
     include_package_data=True,
     py_modules=['helga_britcoin'],
     zip_safe=True,
