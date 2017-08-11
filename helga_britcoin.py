@@ -258,6 +258,15 @@ class BritCoinPlugin(Command):
                 if len(args) != 3:
                     return u'usage: send <nick> <number of britcoins>'
 
+            if args[0] == 'balance':
+                balances = self.blockchain.calculate_balances()
+                nick_balance = balances.get(nick, 0)
+                return '{}, you have {} britcoin{}.'.format(
+                    nick,
+                    nick_balance,
+                    's' if nick_balance > 1 else '',
+                )
+
             if args[0] == 'balances':
                 for chain_nick, balance in self.blockchain.calculate_balances().iteritems():
                     if chain_nick == 'network':
