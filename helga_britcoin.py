@@ -201,6 +201,7 @@ class BritChain(list):
 class BritCoinPlugin(Command):
 
     command = 'britcoin'
+    help = "subcommands: stats, send, balances, balance"
 
     def __init__(self, *args, **kwargs):
 
