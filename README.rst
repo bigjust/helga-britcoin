@@ -1,3 +1,20 @@
+helga
+=====
+
+.. image:: https://travis-ci.org/bigjust/helga-britcoin.svg?branch=master
+    :target: https://travis-ci.org/bigjust/helga-britcoin
+
+.. image:: https://api.codeclimate.com/v1/badges/c774f4a3d5396c6b8898/maintainability
+   :target: https://codeclimate.com/github/bigjust/helga-britcoin/maintainability
+   :alt: Maintainability
+
+.. image:: https://img.shields.io/pypi/v/helga-britcoin.svg
+    :target: https://pypi.python.org/pypi/helga-britcoin
+
+.. image:: https://img.shields.io/pypi/l/helga-britcoin.svg
+    :target: https://github.com/bigjust/helga-britcoin/blob/master/LICENSE
+
+
 helga-britcoin
 ===========
 
