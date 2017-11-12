@@ -7,10 +7,10 @@ from freezegun import freeze_time
 from helga_britcoin import BritBlock, BritChain, proof_of_conversation, work
 
 
-class BritcoinPluginTest(unittest.TestCase):
+class BaseBritcoinTest(object):
 
     @mock.patch('helga_britcoin.db')
-    def setUp(self, mock_db):
+    def setup(self, mock_db):
         db = mock_db.britcoin.find.return_value
         db.sort.return_value = []
 
@@ -25,7 +25,7 @@ class BritcoinPluginTest(unittest.TestCase):
         mock_work.return_value = '00abcd'
         attempt = proof_of_conversation('00aaaa', 'test message')
 
-        self.assertIsNotNone(attempt)
+        assert attempt is not None
 
     @mock.patch('helga_britcoin.work')
     def test_proofer_unsuccessful(self, mock_work):
@@ -36,7 +36,7 @@ class BritcoinPluginTest(unittest.TestCase):
         mock_work.return_value = '1234abcd'
         attempt = proof_of_conversation('00aaaa', 'test message')
 
-        self.assertIsNone(attempt)
+        assert attempt is None
 
     @mock.patch('helga_britcoin.db')
     @mock.patch('helga_britcoin.work')
@@ -50,8 +50,8 @@ class BritcoinPluginTest(unittest.TestCase):
         last_block = self.blockchain.latest_block()
 
         mock_db.britcoin.insert.assert_called_with(last_block.__dict__)
-        self.assertEquals(len(last_block.data['transactions']), 1)
-        self.assertEquals(last_block.data['transactions'][0]['to'], 'bigjust')
+        assert len(last_block.data['transactions']) == 1
+        assert last_block.data['transactions'][0]['to'] == 'bigjust'
 
     @mock.patch('helga_britcoin.work')
     def test_mine_unsuccessful(self, mock_work):
@@ -62,7 +62,7 @@ class BritcoinPluginTest(unittest.TestCase):
         mock_work.return_value = '01'
         output = self.blockchain.mine('bigjust', 'test message')
 
-        self.assertIsNone(output)
+        assert output is None
 
     def test_britcoin_balances(self):
 
@@ -95,10 +95,9 @@ class BritcoinPluginTest(unittest.TestCase):
 
         balances = self.blockchain.calculate_balances()
 
-        self.assertEqual(balances['brit'], 2)
-        self.assertEqual(balances['bigjust'], 1)
-        self.assertEqual(balances['network'], -3)
-
+        assert balances['brit'] == 2
+        assert balances['bigjust'] == 1
+        assert balances['network'] == -3
 
     def test_genesis_block_creation(self):
         """
@@ -106,7 +105,7 @@ class BritcoinPluginTest(unittest.TestCase):
         blockchain.
         """
 
-        self.assertEqual(len(self.blockchain), 1)
+        assert len(self.blockchain) == 1
 
     @mock.patch('helga_britcoin.db')
     def test_genesis_block_defer(self, mock_db):
@@ -127,8 +126,8 @@ class BritcoinPluginTest(unittest.TestCase):
 
         blockchain = BritChain()
 
-        self.assertEqual(len(blockchain), 1)
-        self.assertEqual(blockchain[0].data, 'from db')
+        assert len(blockchain) == 1
+        assert blockchain[0].data == 'from db'
 
     @mock.patch('helga_britcoin.db')
     def test_load_blockchain(self, mock_db):
@@ -164,9 +163,8 @@ class BritcoinPluginTest(unittest.TestCase):
 
         blockchain = BritChain()
 
-        self.assertEqual(len(blockchain), 2)
-        self.assertEqual(blockchain[1].data, 'another from db')
-
+        assert len(blockchain) == 2
+        assert blockchain[1].data == 'another from db'
 
     def test_order_in_hash(self):
         """
@@ -194,21 +192,18 @@ class BritcoinPluginTest(unittest.TestCase):
         block1 = BritBlock(0, 'nowish', block1_data, 'abcd')
         block2 = BritBlock(0, 'nowish', block2_data, 'abcd')
 
-        self.assertEqual(block1.hash, block2.hash)
+        assert block1.hash == block2.hash
 
     def test_work_function(self):
         """
         Make sure work works.
         """
-
-        self.assertEqual(
-            work('abc', 'message'),
-            '52a86b9b940a0539ffe8fa4517fb3569329b7219d0c74d82b2130d0f0dff56d1',
-        )
+        expected_hash = '52a86b9b940a0539ffe8fa4517fb3569329b7219d0c74d82b2130d0f0dff56d1'
+        assert work('abc', 'message') == expected_hash
 
 
 @freeze_time("2016-11-07 13:00:00")
-class BritcoinPluginStatsTest(BritcoinPluginTest):
+class TestBritcoinPluginStats(BaseBritcoinTest):
 
     def test_stats(self):
         """
@@ -245,5 +240,5 @@ class BritcoinPluginStatsTest(BritcoinPluginTest):
 
         stats_message = self.blockchain.stats()
 
-        self.assertIn('150 britcoins', stats_message)
-        self.assertIn('48 seconds', stats_message)
+        assert '150 britcoins' in stats_message
+        assert '48 seconds' in stats_message
