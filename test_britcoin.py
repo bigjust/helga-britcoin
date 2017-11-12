@@ -4,7 +4,10 @@ import unittest
 
 from freezegun import freeze_time
 
-from helga_britcoin import BritBlock, BritChain, proof_of_conversation, work
+from helga_britcoin import (
+    BritBlock, BritChain, proof_of_conversation,
+    work, BritCoinPlugin
+)
 
 
 class BaseBritcoinTest(object):
@@ -15,6 +18,20 @@ class BaseBritcoinTest(object):
         db.sort.return_value = []
 
         self.blockchain = BritChain()
+
+
+class TestBritcoinPlugin(BaseBritcoinTest):
+
+    @mock.patch('helga_britcoin.db')
+    def test_plugin_init(self, mock_db):
+
+        db = mock_db.britcoin.find.return_value
+        db.sort.return_value = []
+
+        plugin = BritCoinPlugin()
+
+        assert plugin.blockchain is not None
+        assert len(plugin.blockchain) == 1
 
     @mock.patch('helga_britcoin.work')
     def test_proofer_successful(self, mock_work):
