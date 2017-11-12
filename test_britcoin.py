@@ -4,7 +4,7 @@ import unittest
 
 from freezegun import freeze_time
 
-from helga_britcoin import BritBlock, BritChain, proof_of_conversation
+from helga_britcoin import BritBlock, BritChain, proof_of_conversation, work
 
 
 class BritcoinPluginTest(unittest.TestCase):
@@ -195,6 +195,16 @@ class BritcoinPluginTest(unittest.TestCase):
         block2 = BritBlock(0, 'nowish', block2_data, 'abcd')
 
         self.assertEqual(block1.hash, block2.hash)
+
+    def test_work_function(self):
+        """
+        Make sure work works.
+        """
+
+        self.assertEqual(
+            work('abc', 'message'),
+            '52a86b9b940a0539ffe8fa4517fb3569329b7219d0c74d82b2130d0f0dff56d1',
+        )
 
 
 @freeze_time("2016-11-07 13:00:00")
