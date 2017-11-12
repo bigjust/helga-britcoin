@@ -1,4 +1,7 @@
 ---
+checks:
+  argument-count:
+    enabled: false
 engines:
   duplication:
     enabled: true
