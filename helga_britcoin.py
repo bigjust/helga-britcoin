@@ -257,18 +257,18 @@ class BritCoinPlugin(Command):
             return
 
         if args[0] == 'stats':
-            return self.blockchain.stats()
+            output = self.blockchain.stats()
 
         if args[0] == 'send':
-            return u'bug bigjust to implement this.'
+            output = u'bug bigjust to implement this.'
 
             if len(args) != 3:
-                return u'usage: send <nick> <number of britcoins>'
+                output = u'usage: send <nick> <number of britcoins>'
 
         if args[0] == 'balance':
             balances = self.blockchain.calculate_balances()
             nick_balance = balances.get(nick, 0)
-            return '{}, you have {} britcoin{}.'.format(
+            output = '{}, you have {} britcoin{}.'.format(
                 nick,
                 nick_balance,
                 's' if nick_balance > 1 else '',
@@ -280,3 +280,6 @@ class BritCoinPlugin(Command):
                     continue
 
                 client.msg(channel, '{}: {}'.format(chain_nick, balance))
+            return
+
+        return output
