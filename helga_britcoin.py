@@ -19,6 +19,12 @@ DEBUG = getattr(settings, 'HELGA_DEBUG', False)
 CMD_PREFIX = getattr(settings, 'COMMAND_PREFIX_CHAR', '!')
 
 
+def timestamp2datetime(timestamp):
+    return date.datetime.strptime(
+        timestamp,
+        '%Y-%m-%d %H:%M:%S'
+    )
+
 def work(prev_hash, message):
     """
     hash the message with the previous hash to produce the hash
@@ -196,6 +202,20 @@ class BritChain(list):
 
         return balances
 
+    def stats(self):
+
+        chain_balances = self.calculate_balances()
+        coins_mined = abs(chain_balances['network'])
+
+
+        blockchain_start = timestamp2datetime(self[0].timestamp)
+        blockchain_end = timestamp2datetime(self[-1].timestamp)
+        total_duration = blockchain_start - blockchain_end
+
+        return u'{} britcoins | {} per britcoin'.format(
+            coins_mined,
+            humanize.naturaldelta(total_duration.total_seconds() / coins_mined)
+        )
 
 
 class BritCoinPlugin(Command):
@@ -233,45 +253,30 @@ class BritCoinPlugin(Command):
         <aineko> brit: 5
         """
 
-        if args:
-            if args[0] == 'stats':
-                chain_balances = self.blockchain.calculate_balances()
-                coins_mined = abs(chain_balances['network'])
+        if not args:
+            return
 
-                def timestamp2datetime(timestamp):
-                    return date.datetime.strptime(
-                        timestamp,
-                        '%Y-%m-%d %H:%M:%S'
-                    )
+        if args[0] == 'stats':
+            return self.blockchain.stats()
 
-                blockchain_start = timestamp2datetime(self.blockchain[0].timestamp)
-                blockchain_end = timestamp2datetime(self.blockchain[-1].timestamp)
-                total_duration = blockchain_start - blockchain_end
+        if args[0] == 'send':
+            return u'bug bigjust to implement this.'
 
-                return u'{} britcoins | {} per britcoin'.format(
-                    coins_mined,
-                    humanize.naturaldelta(total_duration.total_seconds() / coins_mined)
-                )
+            if len(args) != 3:
+                return u'usage: send <nick> <number of britcoins>'
 
-            if args[0] == 'send':
+        if args[0] == 'balance':
+            balances = self.blockchain.calculate_balances()
+            nick_balance = balances.get(nick, 0)
+            return '{}, you have {} britcoin{}.'.format(
+                nick,
+                nick_balance,
+                's' if nick_balance > 1 else '',
+            )
 
-                return u'bug bigjust to implement this.'
+        if args[0] == 'balances':
+            for chain_nick, balance in self.blockchain.calculate_balances().iteritems():
+                if chain_nick == 'network':
+                    continue
 
-                if len(args) != 3:
-                    return u'usage: send <nick> <number of britcoins>'
-
-            if args[0] == 'balance':
-                balances = self.blockchain.calculate_balances()
-                nick_balance = balances.get(nick, 0)
-                return '{}, you have {} britcoin{}.'.format(
-                    nick,
-                    nick_balance,
-                    's' if nick_balance > 1 else '',
-                )
-
-            if args[0] == 'balances':
-                for chain_nick, balance in self.blockchain.calculate_balances().iteritems():
-                    if chain_nick == 'network':
-                        continue
-
-                    client.msg(channel, '{}: {}'.format(chain_nick, balance))
+                client.msg(channel, '{}: {}'.format(chain_nick, balance))

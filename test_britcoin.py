@@ -1,10 +1,13 @@
+
 import mock
 import unittest
+
+from freezegun import freeze_time
 
 from helga_britcoin import BritBlock, BritChain, proof_of_conversation
 
 
-class PluginTest(unittest.TestCase):
+class BritcoinPluginTest(unittest.TestCase):
 
     @mock.patch('helga_britcoin.db')
     def setUp(self, mock_db):
@@ -192,3 +195,45 @@ class PluginTest(unittest.TestCase):
         block2 = BritBlock(0, 'nowish', block2_data, 'abcd')
 
         self.assertEqual(block1.hash, block2.hash)
+
+
+@freeze_time("2016-11-07 13:00:00")
+class BritcoinPluginStatsTest(BritcoinPluginTest):
+
+    def test_stats(self):
+        """
+        make sure the stats we care about are included in the output
+        """
+
+        self.blockchain.append(
+            BritBlock(
+                0, '2016-11-07 10:00:00',
+                {'transactions': [{
+                    'from': 'network',
+                    'to': 'brit',
+                    'amount': 90
+                },{
+                    'from': 'network',
+                    'to': 'bigjust',
+                    'amount': 60
+                }
+                ]},
+                "0"
+            ))
+
+        self.blockchain.append(
+            BritBlock(
+                0, '2016-11-07 11:00:00',
+                {'transactions': [{
+                    'from': 'bigjust',
+                    'to': 'brit',
+                    'amount': 1
+                }]},
+                "0"
+            ))
+
+
+        stats_message = self.blockchain.stats()
+
+        self.assertIn('150 britcoins', stats_message)
+        self.assertIn('48 seconds', stats_message)
