@@ -233,8 +233,6 @@ class BritCoinPlugin(Command):
 
         if nick not in IGNORED and not message.startswith(CMD_PREFIX):
             self.blockchain.mine(nick, message)
-        else:
-            logger.debug('ignoring for mining purposes')
 
         return channel, nick, message
 
