@@ -20,6 +20,39 @@ class BaseBritcoinTest(object):
         self.blockchain = BritChain()
 
 
+class TestBritcoinPreprocessTest(BaseBritcoinTest):
+
+    @mock.patch('helga_britcoin.db')
+    def setup(self, mock_db):
+
+        super(TestBritcoinPreprocessTest, self).setup()
+
+        self.plugin = BritCoinPlugin()
+
+        self.mine_mock = mock.Mock()
+        self.plugin.blockchain.mine = self.mine_mock
+
+    def test_preprocess_mine(self):
+
+        self.plugin.preprocess(None, None, 'bigjust', 'message')
+
+        self.mine_mock.assert_called()
+
+    @mock.patch('helga_britcoin.IGNORED', ['bigjust'])
+    def test_preprocess_ignored(self):
+
+        self.plugin.preprocess(None, None, 'bigjust', 'message')
+
+        self.mine_mock.assert_not_called()
+
+    @mock.patch('helga_britcoin.CMD_PREFIX', '!')
+    def test_preprocess_ignore_command_prefix(self):
+
+        self.plugin.preprocess(None, None, 'bigjust', '!message')
+
+        self.mine_mock.assert_not_called()
+
+
 class TestBritcoinPlugin(BaseBritcoinTest):
 
     @mock.patch('helga_britcoin.db')
