@@ -95,7 +95,7 @@ class TestBritcoinPlugin(BaseBritcoinTest):
         """
 
         mock_work.return_value = '00'
-        output = self.blockchain.mine('bigjust', 'test message')
+        self.blockchain.mine('bigjust', 'test message')
         last_block = self.blockchain.latest_block()
 
         mock_db.britcoin.insert.assert_called_with(last_block.__dict__)
