@@ -1,6 +1,5 @@
 
 import mock
-import unittest
 
 from freezegun import freeze_time
 
