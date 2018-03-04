@@ -1,3 +1,7 @@
+#####################
+# made with love <3 #
+#####################
+
 import datetime as date
 import hashlib
 import humanize
