@@ -1,4 +1,3 @@
-
 import mock
 
 from freezegun import freeze_time
@@ -155,6 +154,46 @@ class TestBritcoinPlugin(BaseBritcoinTest):
         """
 
         assert len(self.blockchain) == 1
+
+    @mock.patch('helga_britcoin.db')
+    @mock.patch('helga_britcoin.proof_of_conversation')
+    def test_send_britcoin(self, mock_proof, mock_db):
+        """
+        Test that a user can send britcoins to another user.
+        """
+
+        mock_proof.return_value = True
+
+        self.blockchain.append(
+            BritBlock(
+                0, '2016-11-07 10:00:00',
+                {'transactions': [{
+                    'from': 'network',
+                    'to': 'brit',
+                    'amount': 90
+                },{
+                    'from': 'network',
+                    'to': 'bigjust',
+                    'amount': 60
+                }
+                ]},
+                "0"
+            ))
+
+        self.blockchain.pending_transactions.append({
+            u'from': 'bigjust',
+            u'to': 'brit',
+            u'amount': 1,
+            u'memo': 'have a coin.',
+        })
+
+        self.blockchain.mine('alkapwn', 'some wisdom')
+        balances = self.blockchain.calculate_balances()
+
+        assert balances['bigjust'] == 59
+        assert balances['brit'] == 91
+
+
 
     @mock.patch('helga_britcoin.db')
     def test_genesis_block_defer(self, mock_db):
