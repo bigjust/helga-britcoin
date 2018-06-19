@@ -15,7 +15,7 @@ from helga.plugins import Command
 
 
 logger = log.getLogger(__name__)
-blockchain = None
+
 DIFFICULTY = int(getattr(settings, 'BRITCOIN_DIFFICULTY', 2))
 IGNORED = getattr(settings, 'IGNORED', [])
 INITIAL_DATA = getattr(settings, 'BRITCOIN_INITIAL_DATA', {'data': 'Genesis Block'})
