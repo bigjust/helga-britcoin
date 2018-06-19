@@ -36,7 +36,12 @@ def work(prev_hash, message):
     """
 
     hasher = hashlib.sha256()
-    hasher.update(prev_hash + message)
+
+    try:
+        hasher.update(prev_hash + message)
+    except UnicodeEncodeError:
+        return ''
+
     hash_attempt = hasher.hexdigest()
 
     return hash_attempt
