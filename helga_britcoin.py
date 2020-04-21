@@ -66,26 +66,29 @@ class BritBlock(object):
 
         self.index = index
         self.timestamp = timestamp
-        self.data = data
+        #self.data = data
         self.previous_hash = previous_hash
+        self.transactions = []
+        self.data = OrderedDict(sorted(data.items()))
         self.hash = self.hash_block()
+        
+    def add_transaction(self, transaction):
 
+        ordered_data = OrderedDict(sorted(transaction.items()))
+        self.transactions.append(ordered_data)
+        
     def hash_block(self):
 
-        sha = hashlib.sha256()
-
-        if isinstance(self.data, dict):
-            data = OrderedDict(sorted(self.data.items(), key=lambda t: t[0]))
-        else:
-            data = self.data
-
+        
+        self.data['transactions'] = self.transactions
+        
         block_to_hash = str(self.index) +\
             str(self.timestamp) +\
-            str(data) +\
+            str(self.data) +\
             str(self.previous_hash)
 
-        sha.update(block_to_hash)
-
+        sha = hashlib.sha256()
+        sha.update(block_to_hash.encode('utf-8'))
         return sha.hexdigest()
 
 

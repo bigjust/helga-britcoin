@@ -261,26 +261,28 @@ class TestBritcoinPlugin(BaseBritcoinTest):
 
         block1_data = {
             'proof-of-work': 'work_did',
-            'transactions': [{
-                'to': 'bigjust',
-                'from': 'brit',
-                'amount': 9000,
-            }],
+            'transactions': [],
         }
 
         block2_data = {
-            'transactions': [{
-                'from': 'brit',
-                'amount': 9000,
-                'to': 'bigjust',
-            }],
+            'transactions': [],
             'proof-of-work': 'work_did',
         }
 
         block1 = BritBlock(0, 'nowish', block1_data, 'abcd')
         block2 = BritBlock(0, 'nowish', block2_data, 'abcd')
-
-        assert block1.hash == block2.hash
+        block1.add_transaction({
+            'from': 'brit',
+            'amount': 9000,
+            'to': 'bigjust',
+        })
+        block2.add_transaction({
+            'to': 'bigjust',
+            'from': 'brit',
+            'amount': 9000,
+        })
+        
+        assert block1.hash_block() == block2.hash_block()
 
     def test_work_function(self):
         """
