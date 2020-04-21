@@ -37,8 +37,11 @@ def work(prev_hash, message):
 
     hasher = hashlib.sha256()
 
+    hash_msg = prev_hash + message
+    hash_msg = hash_msg.encode('utf-8')
+
     try:
-        hasher.update(prev_hash + message)
+        hasher.update(hash_msg)
     except UnicodeEncodeError:
         return ''
 
@@ -179,7 +182,7 @@ class BritChain(list):
             # Now we can gather the data needed
             # to create the new block
             new_block_data = {
-                u'proof-of-work': unicode(proof),
+                u'proof-of-work': proof,
                 u'transactions': list(self.pending_transactions)
             }
 
