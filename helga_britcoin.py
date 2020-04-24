@@ -66,19 +66,26 @@ class BritBlock(object):
 
         self.index = index
         self.timestamp = timestamp
-        #self.data = data
         self.previous_hash = previous_hash
         self.transactions = []
         self.data = OrderedDict(sorted(data.items()))
         self.hash = self.hash_block()
         
     def add_transaction(self, transaction):
+        """
+        Adds a transaction dictionary.
+
+        :param transaction: a dictionary with `from`, `to`,
+          and `amount`.
+        """
 
         ordered_data = OrderedDict(sorted(transaction.items()))
         self.transactions.append(ordered_data)
         
     def hash_block(self):
-
+        """
+        hashes the data block + transactions.
+        """
         
         self.data['transactions'] = self.transactions
         
@@ -186,14 +193,10 @@ class BritChain(list):
             # to create the new block
             new_block_data = {
                 u'proof-of-work': proof,
-                u'transactions': list(self.pending_transactions)
             }
 
             new_block_index = last_block.index + 1
             new_block_timestamp = str(date.datetime.now().replace(microsecond=0))
-
-            # Empty pending transaction list
-            self.pending_transactions[:] = []
 
             # Now create the new block!
             mined_block = BritBlock(
@@ -203,7 +206,12 @@ class BritChain(list):
                 last_block.hash
             )
 
+            for transaction in self.pending_transactions:
+                mined_block.add_transaction(transaction)
+                
             self.append(mined_block, persist=True)
+            # Empty pending transaction list
+            self.pending_transactions[:] = []
 
     def calculate_balances(self):
 

@@ -114,33 +114,36 @@ class TestBritcoinPlugin(BaseBritcoinTest):
 
     def test_britcoin_balances(self):
 
-        self.blockchain.append(
-            BritBlock(
-                0, 0,
-                {'transactions': [{
-                    'from': 'network',
-                    'to': 'brit',
-                    'amount': 1
-                },{
-                    'from': 'network',
-                    'to': 'bigjust',
-                    'amount': 2
-                }
-                ]},
-                "0"
-            ))
+        block1 = BritBlock(
+            0, 0, {}, "0"
+        )
 
-        self.blockchain.append(
-            BritBlock(
-                0, 0,
-                {'transactions': [{
-                    'from': 'bigjust',
-                    'to': 'brit',
-                    'amount': 1
-                }]},
-                "0"
-            ))
+        block1.add_transaction({
+            'from': 'network',
+            'to': 'brit',
+            'amount': 1
+        })
 
+        block1.add_transaction({
+            'from': 'network',
+            'to': 'bigjust',
+            'amount': 2
+        })
+
+        self.blockchain.append(block1)
+
+        
+        block2 = BritBlock(
+            0, 0, {}, "0"
+        )
+
+        block2.add_transaction({
+            'from': 'bigjust',
+            'to': 'brit',
+            'amount': 1
+        })
+        self.blockchain.append(block2)
+        
         balances = self.blockchain.calculate_balances()
 
         assert balances['brit'] == 2
@@ -164,21 +167,24 @@ class TestBritcoinPlugin(BaseBritcoinTest):
 
         mock_proof.return_value = True
 
-        self.blockchain.append(
-            BritBlock(
+        block1 = BritBlock(
                 0, '2016-11-07 10:00:00',
-                {'transactions': [{
-                    'from': 'network',
-                    'to': 'brit',
-                    'amount': 90
-                },{
-                    'from': 'network',
-                    'to': 'bigjust',
-                    'amount': 60
-                }
-                ]},
+                {'transactions': []},
                 "0"
-            ))
+            )
+
+        block1.add_transaction({
+            'from': 'network',
+            'to': 'brit',
+            'amount': 90
+        })
+        block1.add_transaction({
+            'from': 'network',
+            'to': 'bigjust',
+            'amount': 60
+        })
+
+        self.blockchain.append(block1)
 
         self.blockchain.pending_transactions.append({
             u'from': 'bigjust',
@@ -205,7 +211,7 @@ class TestBritcoinPlugin(BaseBritcoinTest):
         genesis_block = {
             'index': 0,
             'timestamp': 'now',
-            'data': 'from db',
+            'data': {'memo': 'from db'},
             'previous_hash': '0',
         }
 
@@ -215,7 +221,7 @@ class TestBritcoinPlugin(BaseBritcoinTest):
         blockchain = BritChain()
 
         assert len(blockchain) == 1
-        assert blockchain[0].data == 'from db'
+        assert blockchain[0].data['memo'] == 'from db'
 
     @mock.patch('helga_britcoin.db')
     def test_load_blockchain(self, mock_db):
@@ -228,21 +234,21 @@ class TestBritcoinPlugin(BaseBritcoinTest):
         genesis_block = {
             'index': 0,
             'timestamp': 'now',
-            'data': 'from db',
+            'data': {'memo': 'from db'},
             'previous_hash': '0',
         }
 
         second_block = {
             'index': 1,
             'timestamp': 'now',
-            'data': 'another from db',
-            'previous_hash': 'cb8c80e8f7311d050c078021c38382bfc3c3a6ad9fb2255cbe619de54703df8e',
+            'data': {'memo': 'another from db'},
+            'previous_hash': 'de92a29c1722f0a2cd195b9ccc8b7ca61b3887505d838668e400c7972be065f9',
         }
 
         third_block = {
             'index': 2,
             'timestamp': 'now',
-            'data': 'tampered block',
+            'data': {'memo': 'tampered block'},
             'previous_hash': 'bleh',
         }
 
@@ -252,7 +258,7 @@ class TestBritcoinPlugin(BaseBritcoinTest):
         blockchain = BritChain()
 
         assert len(blockchain) == 2
-        assert blockchain[1].data == 'another from db'
+        assert blockchain[1].data['memo'] == 'another from db'
 
     def test_order_in_hash(self):
         """
@@ -300,33 +306,31 @@ class TestBritcoinPluginStats(BaseBritcoinTest):
         make sure the stats we care about are included in the output
         """
 
-        self.blockchain.append(
-            BritBlock(
-                0, '2016-11-07 10:00:00',
-                {'transactions': [{
-                    'from': 'network',
-                    'to': 'brit',
-                    'amount': 90
-                },{
-                    'from': 'network',
-                    'to': 'bigjust',
-                    'amount': 60
-                }
-                ]},
-                "0"
-            ))
+        block1 = BritBlock(
+            0, '2016-11-07 10:00:00', {}, "0"
+        )
+        block1.add_transaction({
+            'from': 'network',
+            'to': 'brit',
+            'amount': 90
+        })
+        block1.add_transaction({
+            'from': 'network',
+            'to': 'bigjust',
+            'amount': 60
+        })
+        self.blockchain.append(block1)
 
-        self.blockchain.append(
-            BritBlock(
-                0, '2016-11-07 11:00:00',
-                {'transactions': [{
-                    'from': 'bigjust',
-                    'to': 'brit',
-                    'amount': 1
-                }]},
-                "0"
-            ))
-
+        block2 = BritBlock(
+            0, '2016-11-07 11:00:00',
+            {}, "0"
+        )
+        block2.add_transaction({
+            'from': 'bigjust',
+            'to': 'brit',
+            'amount': 1
+        })
+        self.blockchain.append(block2)
 
         stats_message = self.blockchain.stats()
 
